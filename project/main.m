@@ -1,45 +1,49 @@
+
 clear all;
+cancerVars = {'VarName1','VarName2',  'VarName3', 'VarName4', 'VarName5', 'VarName6', 'VarName7', 'VarName8', 'VarName9'};
+irisVars = {'Sepal Lenght', 'Sepal Widht', 'Petal Lenght', 'Petal Width'};
+%% Cancer section
 
-rng('shuffle');
-load fisheriris;
+results = zeros(5,10);
+etiquetas = ['Discrim  lineal';'Discrim  quadrt';'Decision Tree 1';'Decision Tree 2';'Decision Tree 3'];
+
+[lineal_train,lineal_test] = lineal('cancerWS.mat');
+results(1,:) = lineal_test;
+[quadratic_tr,quadratic_test] = quadratic('cancerWS.mat');
+results(2,:) = quadratic_test;
+
+[tree1_train,tree1_test] = Tree('cancerWS.mat',cancerVars,'Cancer');
+results(3,:) = tree1_test;
+
+[tree2_train,tree2_test] = Tree('cancerWS.mat',cancerVars,'Cancer',5,10);
+results(4,:) = tree2_test;
+
+[tree3_train,tree3_test] = Tree('cancerWS.mat',cancerVars,'Cancer',2,5);
+results(5,:) = tree3_test;
 
 
-DiscrimType = 'linear';
-
-%Entrenamiento:
-Mdl = fitcdiscr(meas,species, 'DiscrimType',DiscrimType);
+testEstadistico(transpose(results), etiquetas);
 
 
-y_pred = predict(Mdl,meas); 
+%% Iris section
+%% Cancer section
 
-confusionmat(species, y_pred);
+results = zeros(5,10);
+etiquetas = ['Discrim  lineal';'Discrim  quadrt';'Decision Tree 1';'Decision Tree 2';'Decision Tree 3'];
 
-[confusion_matrix, cm_order] = confusionmat(species, y_pred);
+[lineal_train,lineal_test] = lineal('irisWS.mat');
+results(1,:) = lineal_test;
+[quadratic_tr,quadratic_test] = quadratic('irisWS.mat');
+results(2,:) = quadratic_test;
 
-fprintf('Confusion Matrix for %s discriminant\n', DiscrimType);
-fprintf('Class order: \n');
-fprintf('\t - %s \n \t - %s \n \t - %s \n', cm_order{1}, cm_order{2}, cm_order{3});
+[tree1_train,tree1_test] = Tree('irisWS.mat',irisVars,'Iris Type');
+results(3,:) = tree1_test;
 
-fprintf('Confusion Matrix: \n');
-disp(confusion_matrix);
+[tree2_train,tree2_test] = Tree('irisWS.mat',irisVars,'Iris Type',5,10);
+results(4,:) = tree2_test;
 
-VP=confusion_matrix(1,1);
-VN=confusion_matrix(2,2)+confusion_matrix(2,3)+confusion_matrix(3,2)+confusion_matrix(3,3);
-FP=confusion_matrix(2,1)+confusion_matrix(3,1);
-FN=confusion_matrix(1,2)+confusion_matrix(1,3);
+[tree3_train,tree3_test] = Tree('irisWS.mat',irisVars,'Iris Type',2,5);
+results(5,:) = tree3_test;
 
-EX=(VP+VN)/(VP+VN+FP+FN); %Exactitud
-S=VP/(VP+FN);     %Sensibilidad
-P=VP/(VP+FP);    %Precision
-VPN=VN/(VN+FN);  %Valor predictivo negativo
-ES=VN/(VN+FP);   %Especificidad
-F1SCORE=2*((P*S)/(P+S));
 
-%Salida de los datos
-fprintf('Medidas para SETOSA: \n')
-fprintf('\t ·Exactitud: %f \n', EX)
-fprintf('\t ·Sensibilidad: %f \n', S)
-fprintf('\t ·Precision: %f \n', P)
-fprintf('\t ·VPN: %f \n', VPN)
-fprintf('\t ·Especificidad: %f \n', ES)
-fprintf('\t ·F1SCORE: %f \n', F1SCORE)
+testEstadistico(transpose(results), etiquetas);

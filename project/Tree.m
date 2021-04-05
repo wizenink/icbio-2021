@@ -1,16 +1,28 @@
+function [trainACC,testACC] = Tree(dataset,PredictorNames,ResponseName,MinLeafSize,MinParentSize,debug)
+arguments
+    dataset(1,:) char;
+    PredictorNames(1,:) cell;
+    ResponseName(1,:) char;
+    MinLeafSize(1,1) double = 1; 
+    MinParentSize(1,1) double = 10;
+    debug(1,1) logical = false;
+end
+
 %%Funcion de tree
-clear all;
-load('irisWS.mat')
+%clear all;
+load(dataset)
+
 %tree = fitctree(x, y, nombre, valor)
 %Variables: minnumsplit, Minleafsize, MinParentsize
  %Carga del WS
 rng('shuffle'); %Semilla de aleatoriedad
+
 %% Árbol de decisión v1:
 MaxNumSplits = size(INPUTS, 1) -1; % valor por defecto  n · muestras - 1 (n tamaño del conjunto de entrenamiento). 
-MinLeafSize = 1; % valor por defecto 1. 
-MinParentSize = 10; % valor por defecto 10. 
-ResponseName = 'Iris Type';
-PredictorNames = {'Sepal Lenght', 'Sepal Widht', 'Petal Lenght', 'Petal Width'};
+%MinLeafSize = 1; % valor por defecto 1. 
+%MinParentSize = 10; % valor por defecto 10. 
+%ResponseName = 'Iris Type';
+%PredictorNames = {'Sepal Lenght', 'Sepal Widht', 'Petal Lenght', 'Petal Width'};
 %%CONDICIONES DE EXPERIMENTACIO PARA ARBOLES%%
 TipoCV = 'KFold'; %LeaveOut
 k = 10; %Numero de modelos
@@ -21,17 +33,21 @@ CV = cvpartition(OUTPUTS, TipoCV, k)
 for i = 1:k
     trIdx = CV.training(i); %Extracción de los indices del conjunto de entrenamiento
     Mdl{i} = fitctree(INPUTS(trIdx,:), OUTPUTS(trIdx,:), 'MaxNumSplits', MaxNumSplits,'MinLeafSize', MinLeafSize,'MinParentSize', MinParentSize,'PredictorNames',PredictorNames,'ResponseName',ResponseName);
-    view(Mdl{i}, 'Mode', 'graph') %Para sacarlo solo con texto e imagen
+    if debug == true
+        view(Mdl{i}, 'Mode', 'graph') %Para sacarlo solo con texto e imagen
+    end
 end
 
 %Cálculo medidas de rendimiento para los conjuntos de training
 for j = 1:k
     REALTRAINOUTPUTS = predict(Mdl{j}, INPUTS(trIdx,:));
     [CM, ORDERCM] = confusionmat(OUTPUTS(trIdx,:), REALTRAINOUTPUTS);
+    
     for i=1:Numclass
         [Recall(i,j),Spec(i,j),Precision(i,j),VPN(i,j),ACC(i,j),F1Score(i,j)] = performanceIndexes(CM,i);
     end
 end
+results(1,:) = mean(ACC)
 %Impresion por pantalla conjunto de training
 for i=1:Numclass
     fprintf('Resultados para la clase %s\n', ORDERCM(i));
@@ -44,6 +60,7 @@ for i=1:Numclass
 end
 
 fprintf('\nLa accuracy GLOBAL es %3.2f\n', mean(mean(ACC)))
+trainACC = mean(ACC);
 
 %Training
 for j = 1:k
@@ -69,12 +86,8 @@ end
 
 fprintf('\nLa media del Accuracy del conjunto de test es %3.2f', mean(mean(ACC)));
 fprintf('\nEl F1Score GLOBAL es %3.2f', mean(mean(F1Score)));
-
-save('ACC_arbol_1', 'matriz_a1')
-save('Resultados_arbol_1', 'resultados')
-
-
-
-
+testACC = mean(ACC);
+%save('ACC_arbol_1', 'matriz_a1')
+%save('Resultados_arbol_1', 'resultados')
 
 
