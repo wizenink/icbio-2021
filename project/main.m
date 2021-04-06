@@ -22,11 +22,10 @@ results(4,:) = tree2_test;
 results(5,:) = tree3_test;
 
 
-testEstadistico(transpose(results), etiquetas);
+%pvalue = testEstadistico(transpose(results), etiquetas);
 
 
-%% Iris section
-%% Cancer section
+% Iris section
 
 results = zeros(5,10);
 etiquetas = ['Discrim  lineal';'Discrim  quadrt';'Decision Tree 1';'Decision Tree 2';'Decision Tree 3'];
@@ -46,4 +45,4 @@ results(4,:) = tree2_test;
 results(5,:) = tree3_test;
 
 
-testEstadistico(transpose(results), etiquetas);
+pvalue = testEstadistico(transpose(results), etiquetas);

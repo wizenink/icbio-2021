@@ -1,0 +1,388 @@
+\documentclass[a4paper,openwrite,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{titling}
+\usepackage[spanish]{babel}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{listings}
+
+
+\begin{document}
+
+\begin{titlepage}
+
+\begin{center}
+\vspace*{-1in}
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width=8cm]{img/udc.png}
+\end{center}
+\end{figure}
+
+\vspace*{1in}
+ICBio 20/21 \\
+\vspace*{1in}
+\begin{Large}
+\textbf{P1\&P2} \\
+\end{Large}
+
+\vspace*{3in}
+
+\begin{large}
+\raggedleft
+\textbf{Autores:}Sergio Rodríguez Nieto \\
+David Maseda Neira \\
+\textbf{Fecha:}\textit{Coruña,a \today}\\
+\end{large}
+
+\end{center}
+\end{titlepage} 
+\pagenumbering{gobble}
+\tableofcontents
+\pagenumbering{arabic}
+\newpage
+\section{Introducción}
+En esta memoria incremental se presentan el procedimiento y los resultados de las prácticas en Inteligencia Computacional para la Bioinformática.
+
+\section{Descripción de los \textit{datasets}}
+\subsection{\textit{Breast Cancer Wisconsin Dataset}}
+Consiste en  683 ejemplos, con 10 características por ejemplo:
+\begin{itemize}
+    \item Radio
+    \item Textura
+    \item Perímetro
+    \item Área
+    \item Suavidad
+    \item Compacidad
+    \item Concavidad
+    \item Puntos de concavidad
+    \item Simetría
+    \item Dimensión fractal
+\end{itemize}
+
+Los ejemplos se clasifican como malignos(1) o benignos(2).
+
+\subsection{\textit{Iris Flower Dataset}}
+Consiste en 150 ejemplos, 50 para cada una de las 3 clases (Setosa, Versicolor y Virginica)
+Contiene 4 características por ejemplo:
+\begin{itemize}
+    \item Longitud del sépalo (cm)
+    \item Anchura del sépalo (cm)
+    \item Longitud del pétalo (cm)
+    \item Anchura del pétalo (cm)
+\end{itemize}
+
+\section{Preparación del \textit{dataset}}
+\subsection{Preparación del \textit{Breast Cancer Wisconsin Dataset}}
+Los datos del \textit{Breast Cancer Wisconsin Dataset} se obtienen en un CSV.
+Durante esta práctica, no se realiza extracción de características, por lo que la carga de los datos del CSV se realiza directamente. Estos datos se guardan en un fichero MAT de matlab, para no volver a parsear el csv en posteriores ejecuciones. De igual modo, de realizarse preprocesado, este solo sería necesario la primera vez, al construir el dataset.
+
+\subsection{Preparación del \textit{Iris Flower Dataset}}
+De igual manera que con el \textit{dataset} anterior, no se realiza preprocesado, y los datos se guardan en un fichero de matlab para posterior acceso.
+
+
+\section{Metodología y desarrollo}
+
+El código está organizado de la siguiente manera:
+
+Existen 3 módulos:
+
+\begin{itemize}
+    \item lineal.m
+    \item quadratic.m
+    \item Tree.m
+\end{itemize}
+
+Cada uno de ellos define una función, que construye y entrena el modelo según los datos proporcionados. La firma de las funciones es la siguiente:
+
+\begin{lstlisting}
+#quadratic.m
+quadratic(dataset) -> [trainACC,testACC]
+
+#linear.m
+linear(dataset) -> [trainACC,testACC]
+
+#Tree.m
+Tree(dataset,PredictorNames,ResponseName,
+MinLeafSize = 1,MinParentSize = 10,
+debug = false) -> [trainACC,testACC]
+\end{lstlisting}
+
+El parámetro debug en \textit{Tree.m} sirve para ocultar las figuras de la estructura de los árboles, por simplicidad al ejecutar. Si se quiere consultar la estructura de los árboles, se fija el parámetro debug a true.
+
+Para cada uno de los modelos, la función que define ejecuta secuencialmente lo siguiente:
+
+\begin{enumerate}
+    \item Carga los datos del dataset provisto en la firma de la función.
+    \item Configura los parámetros para el modelo según lo definido en la firma de la función.
+    \item Entrena el modelo y lo valida con el \textit{split} de test.
+    \item Muestra las métricas por clase y globales.
+    \item La función devuelve el accuracy, tanto en train como en test.
+\end{enumerate}
+
+\subsection{Ejecución}
+Se provee un archivo main.m, que construye y ejecuta todos los modelos para ambos \textit{datasets}. 
+\textbf{IMPORTANTE}: Se ha utilizado el bloque \textbf{arguments} de MATLAB, que sólamente está disponible de la versión 2019b en adelante, por lo cual si se ejecuta en una versión anterior, muestra un error de sintaxis.
+\section{Modelos y entrenamiento} 
+Se prueban 5 modelos diferentes:
+Un discriminante lineal, un discriminante cuadrático y 3 variaciones de árboles de clasificación, con variaciones en los parámetros.
+Todos los modelos se entrenan con un \textit{10-fold}.
+Se recogen las siguientes métricas de rendimiento:
+\begin{itemize}
+    \item Recall
+    \item Precisión
+    \item Especificidad
+    \item VPN
+    \item Accuracy
+    \item F1
+\end{itemize}
+
+En esta sección, se presentan los modelos, sus parámetros, y los resultados para el conjunto de test.
+
+\subsection{Discriminante lineal}
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+            & Setosa & Versicolor & Virginica &  \\ \midrule
+Recall      & 1.00   & 0.96       & 0.98      &  \\
+Precision   & 1.00   & 0.98       & 0.96      &  \\
+Specificity & 1.00   & 0.96       & 0.98      &  \\
+VPN         & 1.00   & 0.98       & 0.99      &  \\
+Accuracy    & 1.00   & 0.98       & 0.98      &  \\
+F1          & 1.00   & 0.97       & 0.97      &  \\ \bottomrule
+\end{tabular}
+\caption{Iris(lineal)}
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+            & Maligno & Benigno &  \\ \midrule
+Recall      & 0.98    & 0.92    &  \\
+Precision   & 0.96    & 0.97    &  \\
+Specificity & 0.98    & 0.92    &  \\
+VPN         & 0.97    & 0.97    &  \\
+Accuracy    & 0.96    & 0.96    &  \\
+F1          & 0.97    & 0.94    &  \\ \bottomrule
+\end{tabular}
+\caption{Cáncer(lineal)}
+\end{table}
+
+\subsection{Discriminante cuadrático}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+            & Setosa & Versicolor & Virginica &  \\ \midrule
+Recall      & 1.00   & 0.92       & 0.98      &  \\
+Precision   & 1.00   & 0.98       & 0.94      &  \\
+Specificity & 1.00   & 0.92       & 0.98      &  \\
+VPN         & 1.00   & 0.97       & 0.99      &  \\
+Accuracy    & 1.00   & 0.97       & 0.97      &  \\
+F1          & 1.00   & 0.94       & 0.96      &  \\ \bottomrule
+\end{tabular}
+\caption{Iris(Quad)}
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+            & Maligno & Benigno &  \\ \midrule
+Recall      & 0.94    & 0.98    &  \\
+Precision   & 0.99   & 0.90    &  \\
+Specificity & 0.94    & 0.98    &  \\
+VPN         & 0.90    & 0.99    &  \\
+Accuracy    & 0.95    & 0.95    &  \\
+F1          & 0.96    & 0.94    &  \\ \bottomrule
+\end{tabular}
+\caption{Cáncer(Quad)}
+\end{table}
+
+
+
+\subsection{Árbol 1}
+
+Árbol de búsqueda con los parámetros por defecto:
+
+\begin{itemize}
+    \item MinLeafSize: 1
+    \item MinParentSize: 10
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+            & Setosa & Versicolor & Virginica &  \\ \midrule
+Recall      & 1.00   & 0.90       & 0.92      &  \\
+Precision   & 1.00   & 0.93       & 0.91      &  \\
+Specificity & 1.00   & 0.90       & 0.92      &  \\
+VPN         & 1.00   & 0.95       & 0.96      &  \\
+Accuracy    & 1.00   & 0.94       & 0.94      &  \\
+F1          & 1.00   & 0.91       & 0.91      &  \\ \bottomrule
+\end{tabular}
+\caption{Iris(Tree 1)}
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+            & Maligno & Benigno &  \\ \midrule
+Recall      & 0.96    & 0.91    &  \\
+Precision   & 0.95    & 0.92    &  \\
+Specificity & 0.96    & 0.91    &  \\
+VPN         & 0.92    & 0.95    &  \\
+Accuracy    & 0.94    & 0.94    &  \\
+F1          & 0.95    & 0.91    &  \\ \bottomrule
+\end{tabular}
+\caption{Cáncer(Tree 1)}
+\end{table}
+
+
+
+
+\subsection{Árbol 2}
+Árbol de búsqueda con los parámetros:
+
+\begin{itemize}
+    \item MinLeafSize: 5
+    \item MinParentSize: 10
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+            & Setosa & Versicolor & Virginica &  \\ \midrule
+Recall      & 1.00   & 0.94       & 0.88      &  \\
+Precision   & 1.00   & 0.90       & 0.94      &  \\
+Specificity & 1.00   & 0.95       & 0.89      &  \\
+VPN         & 1.00   & 0.97       & 0.95      &  \\
+Accuracy    & 1.00   & 0.94       & 0.94      &  \\
+F1          & 1.00   & 0.92       & 0.90      &  \\ \bottomrule
+\end{tabular}
+\caption{Iris(Tree 2)}
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+            & Maligno & Benigno &  \\ \midrule
+Recall      & 0.96    & 0.92    &  \\
+Precision   & 0.96    & 0.93    &  \\
+Specificity & 0.96    & 0.92    &  \\
+VPN         & 0.93    & 0.96    &  \\
+Accuracy    & 0.95    & 0.95    &  \\
+F1          & 0.96    & 0.92    &  \\ \bottomrule
+\end{tabular}
+\caption{Cáncer(Tree 2)}
+\end{table}
+
+
+
+
+\subsection{Árbol 3}
+Árbol de búsqueda con los parámetros:
+
+\begin{itemize}
+    \item MinLeafSize: 2
+    \item MinParentSize: 5
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+            & Setosa & Versicolor & Virginica &  \\ \midrule
+Recall      & 1.00   & 0.94       & 0.90      &  \\
+Precision   & 1.00   & 0.92       & 0.94      &  \\
+Specificity & 1.00   & 0.94       & 0.90      &  \\
+VPN         & 1.00   & 0.97       & 0.95      &  \\
+Accuracy    & 1.00   & 0.95       & 0.95      &  \\
+F1          & 1.00   & 0.92       & 0.92      &  \\ \bottomrule
+\end{tabular}
+\caption{Iris(Tree 3)}
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+            & Maligno & Benigno &  \\ \midrule
+Recall      & 0.97    & 0.92    &  \\
+Precision   & 0.96    & 0.95    &  \\
+Specificity & 0.97    & 0.92    &  \\
+VPN         & 0.95    & 0.96    &  \\
+Accuracy    & 0.95    & 0.95    &  \\
+F1          & 0.97    & 0.93    &  \\ \bottomrule
+\end{tabular}
+\caption{Cáncer(Tree 3)}
+\end{table}
+
+
+\section{Comparativa: Medidas globales}
+Se utiliza la accuracy en test como métrica para comparar los modelos.
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+                         & Accuracy( Train ) & Accuracy( Test ) \\ \midrule
+Discriminante Lineal     & 0.9574            & 0.9605           \\
+Discriminante Cuadrático & 0.9579            & 0.9501           \\
+Árbol 1                  & 0.9754            & 0.9384           \\
+Árbol 2                  & 0.9711            & 0.9546           \\
+Árbol 3                  & 0.9793            & 0.9414          
+\end{tabular}
+\caption{Medidas globales de accuracy en training y test(Cáncer)}
+\label{tab:global_cancer}
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+                         & Accuracy( Train ) & Accuracy( Test ) \\ \midrule
+Discriminante Lineal     & 0.9847            & 0.9822           \\
+Discriminante Cuadrático & 0.9857            & 0.9822           \\
+Árbol 1                  & 0.9867            & 0.9689           \\
+Árbol 2                  & 0.9798            & 0.9733           \\
+Árbol 3                  & 0.9847            & 0.9778          
+\end{tabular}
+\caption{Medidas globales de accuracy en training y test(Iris)}
+\label{tab:global_iris}
+\end{table}
+\newpage
+\section{Significancia estadística - Boxplots}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{img/box_cancer.jpg}
+\caption{Cáncer}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{img/box_iris.jpg}
+\caption{Iris}
+\end{figure}
+
+\newpage
+\listoftables
+\end{document}

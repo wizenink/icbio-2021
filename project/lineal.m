@@ -41,7 +41,7 @@ for i=1:Numclass
     fprintf('Resultados para la clase %s\n', ORDERCM(i));
     fprintf('\t Recall %3.2f\n', mean(Recall(i,:)));
     fprintf('\t Precision %3.2f\n', mean(Precision(i,:)));
-    fprintf('\t Recall %3.2f\n', mean(Spec(i,:)));
+    fprintf('\t Spec %3.2f\n', mean(Spec(i,:)));
     fprintf('\t Valor Predictivo Negativo %3.2f\n', mean(VPN(i,:)));
     fprintf('\t Accuracy %3.2f\n', mean(ACC(i,:)));
     fprintf('\t F1Score %3.2f\n', mean(F1Score(i,:)));
